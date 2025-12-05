@@ -109,9 +109,41 @@ const updateVehicle = async (req: Request, res: Response) => {
   }
 };
 
+const deleteVehicle = async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params; // 1
+
+    if (isNaN(Number(vehicleId))) {
+      res.status(400).json({
+        message: "please provide a valid Vehicle id",
+      });
+    }
+    const singleVehicle = await vehicleService.deleteSingleVehicle(
+      vehicleId as string
+    );
+    if (singleVehicle.rowCount === 0) {
+      res.status(404).json({
+        message: "Vehicle not found",
+      });
+    }
+    res.status(200).json({
+      success: true,
+      message: "Successfully delete",
+      data: singleVehicle.rows[0],
+    });
+  } catch (error: any) {
+    console.log(error?.message);
+    res.status(400).json({
+      success: false,
+      message: "something went wrong",
+    });
+  }
+};
+
 export const vehicleController = {
   createVehicle,
   getVehicle,
   singleVehicle,
   updateVehicle,
+  deleteVehicle,
 };
