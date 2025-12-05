@@ -3,14 +3,15 @@
 import { NextFunction, Request, Response } from "express";
 import config from "../config/env";
 import jwt, { JwtPayload } from "jsonwebtoken";
-const auth = async (...roles: string[]) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+const auth = (...roles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req?.headers?.authorization;
+      const token = req?.headers?.authorization?.split(" ")[1];
       if (!token) {
         res.status(401).json({
           success: false,
-          message: "you are unauthenticated",
+          message:
+            "you are unauthenticated.Please log in and persmission to admin",
         });
       }
       // then verify
@@ -24,9 +25,10 @@ const auth = async (...roles: string[]) => {
       if (roles.length > 0 && !roles.includes(tokenDecoded.role)) {
         res.status(403).json({
           success: false,
-          message: "forbidden",
+          message: "Only admin create a vehicle.",
         });
       }
+      next();
     } catch (error: any) {
       res.status(500).json({
         success: false,
@@ -35,3 +37,5 @@ const auth = async (...roles: string[]) => {
     }
   };
 };
+
+export default auth;
