@@ -24,6 +24,7 @@ const createUser = async (req: Request, res: Response) => {
     //
     // console.log("insetUser -> ", insetUser.rows[0]);
   } catch (error: any) {
+    console.log(error);
     if (error.code === "23505") {
       res.status(401).json({
         error: error.detail,
