@@ -5,5 +5,6 @@ import auth from "../../middleware/authVaryfiy";
 const router = Router();
 //  middleaware add admin
 router.post("/", auth("admin"), vehicleController.createVehicle);
+router.get("/", vehicleController.getVehicle);
 
 export const vehicleRoutes = router;

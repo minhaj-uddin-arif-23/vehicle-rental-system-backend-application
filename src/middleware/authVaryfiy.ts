@@ -11,7 +11,7 @@ const auth = (...roles: string[]) => {
         res.status(401).json({
           success: false,
           message:
-            "you are unauthenticated.Please log in and persmission to admin",
+            "you are unauthenticated.Please log in and permission to admin",
         });
       }
       // then verify
