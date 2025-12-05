@@ -6,5 +6,6 @@ const router = Router();
 //  middleaware add admin
 router.post("/", auth("admin"), vehicleController.createVehicle);
 router.get("/", vehicleController.getVehicle);
+router.get("/:vehicleId", vehicleController.singleVehicle);
 
 export const vehicleRoutes = router;
