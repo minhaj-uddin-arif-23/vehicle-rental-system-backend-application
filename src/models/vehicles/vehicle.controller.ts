@@ -75,9 +75,43 @@ const singleVehicle = async (req: Request, res: Response) => {
     });
   }
 };
+const updateVehicle = async (req: Request, res: Response) => {
+  try {
+    const { vehicleId } = req.params; // 1
+
+    if (isNaN(Number(vehicleId))) {
+      res.status(400).json({
+        message: "please provide a valide Vehicle id",
+      });
+    }
+    const singleVehicleUpdate = await vehicleService.singleVehicleUpdate(
+      req.body,
+      vehicleId as string
+    );
+    if (singleVehicleUpdate.rowCount === 0) {
+      res.status(404).json({
+        message: "Vehicle not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Vehicle Update successfully",
+      data: singleVehicleUpdate.rows[0],
+    });
+  } catch (error: any) {
+    console.log(error?.message);
+    res.status(400).json({
+      success: false,
+      error: error?.message,
+      message: "Not found Vehicle",
+    });
+  }
+};
 
 export const vehicleController = {
   createVehicle,
   getVehicle,
   singleVehicle,
+  updateVehicle,
 };
