@@ -14,7 +14,7 @@ const signin = async (email: string, password: string) => {
   const user = result.rows[0];
 
   const token = jwt.sign(
-    { email: email, password: password, role: user.role },
+    { email: email, password: password, role: user.role, id: user.id },
     config.json_secret as string,
     { expiresIn: "30d" }
   );

@@ -8,7 +8,7 @@ const auth = (...roles: string[]) => {
     try {
       const token = req?.headers?.authorization?.split(" ")[1];
       if (!token) {
-        res.status(401).json({
+        return res.status(401).json({
           success: false,
           message:
             "you are unauthenticated.Please log in and permission to admin",
@@ -23,9 +23,9 @@ const auth = (...roles: string[]) => {
       //  then set user this tokenDecoded
       req.user = tokenDecoded;
       if (roles.length > 0 && !roles.includes(tokenDecoded.role)) {
-        res.status(403).json({
+        return res.status(403).json({
           success: false,
-          message: "Only admin create a vehicle.",
+          message: " Forbidden:Only admin create a vehicle.",
         });
       }
       next();
