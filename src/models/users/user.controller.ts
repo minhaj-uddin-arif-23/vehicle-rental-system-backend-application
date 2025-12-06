@@ -69,37 +69,55 @@ const updateUser = async (req: Request, res: Response) => {
     });
   }
 };
-//todo   no active bookings exist
+
 const deletUser = async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params; // 1
+    const { userId } = req.params;
 
     if (isNaN(Number(userId))) {
-      res.status(400).json({
-        message: "please provide a valide user id",
-      });
-    }
-    const singleUser = await userService.deleteUser(userId as string);
-    if (singleUser.rowCount === 0) {
-      res.status(404).json({
-        message: "user not found",
+      return res.status(400).json({
+        success: false,
+        message: "Please provide a valid user ID",
       });
     }
 
-    res.status(200).json({
+    // 1. Check if user exists
+    const user = await userService.getUserById(userId as string);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // 2. Check if user has active bookings
+    const activeBookings = await userService.getActiveBookingByUser(
+      userId as string
+    );
+
+    if (activeBookings.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Cannot delete user with active bookings",
+      });
+    }
+
+    // 3. Delete user
+    await userService.deleteUser(userId as string);
+
+    return res.status(200).json({
       success: true,
       message: "User deleted successfully",
-      // user: singleUser.rowCount,
-      // userdata: singleUser.rows,
     });
   } catch (error: any) {
-    console.log(error?.message);
-    res.status(400).json({
+    console.log(error.message);
+    return res.status(400).json({
       success: false,
-      message: "something went wrong",
+      message: "Something went wrong",
     });
   }
 };
+
 export const userController = {
   getAllUser,
   updateUser,

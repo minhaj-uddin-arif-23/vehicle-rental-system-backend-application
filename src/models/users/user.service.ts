@@ -24,7 +24,21 @@ const updateUser = async (payload: Record<string, unknown>, id: string) => {
   }
   return await pool.query(query, values);
 };
-//todo   no active bookings exist
+// delete when no active  booking user exists
+const getUserById = async (id: string) => {
+  const result = await pool.query(`SELECT * FROM users WHERE id=$1`, [id]);
+  return result.rows[0];
+};
+
+// check active booking
+const getActiveBookingByUser = async (userId: string) => {
+  const result = await pool.query(
+    `SELECT * FROM bookings WHERE customer_id = $1 AND status ='active'`,
+    [userId]
+  );
+  return result.rows;
+};
+
 const deleteUser = async (id: string) => {
   const result = await pool.query(`DELETE FROM users WHERE id=$1`, [id]);
   return result;
@@ -34,4 +48,6 @@ export const userService = {
   getAllUser,
   updateUser,
   deleteUser,
+  getActiveBookingByUser,
+  getUserById,
 };
