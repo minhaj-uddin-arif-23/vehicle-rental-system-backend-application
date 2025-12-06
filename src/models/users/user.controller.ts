@@ -32,7 +32,7 @@ const updateUser = async (req: Request, res: Response) => {
     ) {
       return res.status(403).json({
         success: false,
-        message: "You can not update other user details",
+        message: "You can not see  other user details",
       });
     }
     // preven role update to customer
@@ -69,7 +69,7 @@ const updateUser = async (req: Request, res: Response) => {
     });
   }
 };
-
+//todo   no active bookings exist
 const deletUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params; // 1
