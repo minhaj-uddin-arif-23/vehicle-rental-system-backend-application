@@ -25,7 +25,13 @@ const updateUser = async (payload: Record<string, unknown>, id: string) => {
   return await pool.query(query, values);
 };
 
+const deleteUser = async (id: string) => {
+  const result = await pool.query(`DELETE FROM users WHERE id=$1`, [id]);
+  return result;
+};
+
 export const userService = {
   getAllUser,
   updateUser,
+  deleteUser,
 };

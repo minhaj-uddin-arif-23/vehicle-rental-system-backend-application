@@ -70,7 +70,38 @@ const updateUser = async (req: Request, res: Response) => {
   }
 };
 
+const deletUser = async (req: Request, res: Response) => {
+  try {
+    const { userId } = req.params; // 1
+
+    if (isNaN(Number(userId))) {
+      res.status(400).json({
+        message: "please provide a valide user id",
+      });
+    }
+    const singleUser = await userService.deleteUser(userId as string);
+    if (singleUser.rowCount === 0) {
+      res.status(404).json({
+        message: "user not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User deleted successfully",
+      // user: singleUser.rowCount,
+      // userdata: singleUser.rows,
+    });
+  } catch (error: any) {
+    console.log(error?.message);
+    res.status(400).json({
+      success: false,
+      message: "something went wrong",
+    });
+  }
+};
 export const userController = {
   getAllUser,
   updateUser,
+  deletUser,
 };
