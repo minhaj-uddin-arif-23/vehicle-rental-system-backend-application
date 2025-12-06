@@ -45,7 +45,101 @@ const getAllbooking = async (req: Request, res: Response) => {
   }
 };
 
+const updateBookingByStatus = async (req: Request, res: Response) => {
+  try {
+    const { bookingId } = req.params;
+    const { status } = req.body;
+    const loggedInUser = req.user as JwtPayload;
+
+    // Fetch existing booking
+    const booking = await BookingService.getBookingById(Number(bookingId));
+    if (!booking) {
+      return res.status(404).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    const now = new Date();
+
+    // Customer Updating Booking
+
+    if (loggedInUser.role === "customer") {
+      if (loggedInUser.id !== booking.customer_id) {
+        return res.status(403).json({
+          success: false,
+          message: "You can only update your own bookings",
+        });
+      }
+
+      if (status !== "cancelled") {
+        return res.status(400).json({
+          success: false,
+          message: "Customers can only cancel bookings",
+        });
+      }
+
+      if (now >= new Date(booking.rent_start_date)) {
+        return res.status(400).json({
+          success: false,
+          message: "Cannot cancel after the rental has started",
+        });
+      }
+
+      const updated = await BookingService.updateBookingStatus(
+        bookingId as string,
+        "cancelled"
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Booking cancelled successfully",
+        data: updated,
+      });
+    }
+
+    // Admin Updating Booking
+
+    if (loggedInUser.role === "admin") {
+      if (status !== "returned") {
+        return res.status(400).json({
+          success: false,
+          message: "Admins can only mark bookings as returned",
+        });
+      }
+
+      // Mark booking returned
+      const updated = await BookingService.updateBookingStatus(
+        bookingId as string,
+        "returned"
+      );
+
+      // Update vehicle availability
+      await BookingService.updateVehicleAvailability(
+        booking.vehicle_id,
+        "available"
+      );
+
+      return res.status(200).json({
+        success: true,
+        message: "Booking marked as returned. Vehicle is now available",
+        data: {
+          ...updated,
+          vehicle: { availability_status: "available" },
+        },
+      });
+    }
+  } catch (error: any) {
+    console.log(error.message);
+    return res.status(400).json({
+      success: false,
+      message: "Something went wrong",
+    });
+  }
+};
+
 export const bookingController = {
   createBooking,
   getAllbooking,
+  updateBookingByStatus,
 };
